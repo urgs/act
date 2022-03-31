@@ -2,6 +2,7 @@
 shell command line activity tracker by threads
 
 simple file based structure with aliases se rc_act 
+try the HOWTO at the end of this file - just for fun - 
 
 ------------ # activity --------------------------------------------------------------
 .ah
@@ -46,7 +47,7 @@ A.) run rc_act in the current shell or at login ( optional set environment SYS_A
 B.) initialze once 
     .ainit
 
-C.) create some action for backlog
+C.) create some action for backlog 
     .an action001 some text
     .an action002 some text
     .an action003 some text
@@ -95,12 +96,13 @@ F.) interrupt your current activity by solving an importend problem (e.g L2 supp
    .alt
    .ala
 
-G.) you can remove/archive a complete thread, it makes sense to swich to another thread and not 
-    removing the current active thread.
+G.) you can remove/archive a complete thread, it makes sense to switch to another thread before
+    with .as2 ..... or create a new on with .ant 
+    and not removing the current active thread.
     .aat thr-today
    
-...... play arraound
-...... rm -rf ~/act    # delte all traces
+...... play arround, try other things ....
+...... rm -rf ~/act    # delete all traces
 ...... repeat (B)
 ...... have fun 
 
