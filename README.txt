@@ -41,10 +41,9 @@ SYS_ACT_DIR_HOME         - overwrites ACT_DIR_HOME default $HOME/act
 -------------
 HOWTO mini :
 -------------
-
-A.) run rc_act in the current shell or at login
+A.) run rc_act in the current shell or at login ( optional set environment SYS_ACT_DIR_HOME )
     . rc_act
-B.) initialze once ( optional set environment SYS_ACT_DIR_HOME )
+B.) initialze once 
     .ainit
 
 C.) create some action for backlog
@@ -52,6 +51,7 @@ C.) create some action for backlog
     .an action002 some text
     .an action003 some text
     .an action003 another  text
+    .an action004 some text
 
 D.) check your backlog 
    .alb
@@ -70,29 +70,38 @@ F.) interrupt your current activity by solving an importend problem (e.g L2 supp
    .ai importent activity a-001
    # check
    .alt
+   .ala
    # other interruptions:
    .ai importent activity a-002
    .ai importent activity a-003
    .ai importent activity a-004
    # check
    .alt
-   # you are working on a-004 currently and a-002 become more important
-   .as2 a-002              # you can also use the timestampt from .alt
+   # you are working on a-004 suddently a-002 become most important
+   .as2 a-002              # you can also use the timestamp from .alt
    # check
    .alt
+   .ala
    # a-002 is done /finished
-   .af a-002
+   .af 
    # check
    .alt
+   .ala
    # check and see also completed
    .alta
    # you get the information that a-003 become obsolet
    .af a-003
+   # check
+   .alt
+   .ala
 
-G.) you can remove /archive a complete thread, it makes sence to swich to another thread and not 
+G.) you can remove/archive a complete thread, it makes sense to swich to another thread and not 
     removing the current active thread.
-    .aaa today
+    .aat thr-today
    
+...... play arraound
+...... rm -rf ~/act    # delte all traces
+...... repeat (B)
 ...... have fun 
 
 
