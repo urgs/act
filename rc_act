@@ -363,7 +363,7 @@ function __act_archive_thread
          typeset tname=$ACT_DIR_ARC_THREADS/$d.$(date "+%Y%m%d-%H%M%S")
          mv $d $tname
          # manage activities - remove from active 
-         for a in $(cd $tname && find ${tname##*/} -type d )
+         for a in $(cd $tname/.. && find ${tname##*/} -type d )
          do
             typeset act=${ACT_DIR_ACTIVE}/${a##*/}
             if [ -d ${act} ]
