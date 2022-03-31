@@ -935,9 +935,10 @@ alias .aqm=__act_query_meta
 ##########################################
 # TDB:
 ##########################################
-# ----- add meta data
-# ----- create statistics
-# ----- activate backlog
+# +++++ add meta data
+# +++++ create statistics
+# +++++ activate backlog
+# ----- cumulative ts
 
 
 
