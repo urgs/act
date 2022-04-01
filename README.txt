@@ -6,7 +6,6 @@ try the HOWTO at the end of this file - just for fun -
 
 ------------ # activity --------------------------------------------------------------
 .ah
-
 ------------ # activity --------------------------------------------------------------
 .an  s1 s2 ..            - new activity for backlog - continue working on old task
 .ai  s1 s2 ..            - new activity interrupt current activity
