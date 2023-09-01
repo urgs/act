@@ -352,18 +352,18 @@ function __act_list_thread
 ########################################
 function __act_archive_thread
 {
-
     ( 
+	 ${debug__act_archive_thread:+set -x}
       typeset a=""
       typeset d=""
 
       cd $ACT_DIR_THREADS && \
       for d in $*
       do
-         typeset tname=$ACT_DIR_ARC_THREADS/$d.$(date "+%Y%m%d-%H%M%S")
+         typeset tname=$ACT_DIR_ARC_THREADS/$d.${ARC_TS:-$(date "+%Y%m%d-%H%M%S")}
          mv $d $tname
          # manage activities - remove from active 
-         for a in $(cd $tname/.. && find ${tname##*/} -type d )
+         for a in $(cd $tname/../. && find ${tname##*/} -type d )
          do
             typeset act=${ACT_DIR_ACTIVE}/${a##*/}
             if [ -d ${act} ]
@@ -372,7 +372,65 @@ function __act_archive_thread
             fi
          done
       done 
+	 ${debug__act_archive_thread:+set +x}
     )
+}
+########################################
+# archive thread
+########################################
+function __act_archive_thread_completed
+{
+   # clean uo completes tasks from tread only
+	# actions:
+	# clenaup compelte thread and restore old thread
+	# with uncompleted tasks from archive
+
+	typeset tsk=
+
+	${debug__act_archive_thread_completed:+set -x}
+	for tsk in $*
+	do
+		# backup 
+		ARC_TS=$(date "+%Y%m%d-%H%M%S") 
+		__act_archive_thread $tsk
+
+   	typeset tname=$ACT_DIR_ARC_THREADS/$tsk.${ARC_TS}
+		unset ARC_TS
+
+
+		# restore trhread
+      mkdir ${ACT_DIR_THREADS}/$tsk
+
+		# restore uncompleted
+
+		# start find for directories
+      # remove all completets Act.* entries from all paths 
+		# remove thread 
+		# remove empty lines 
+		# sort unic (keep time order)
+		typeset tset=$(cd $ACT_DIR_ARC_THREADS && find ${tname##*/} -type d \
+                       | sed -e 's/\/Act.20[0-9]\{2\}-..-.._..:..:..[^\/]\{1,\}//g' \
+                       | sed -e "s/${tname##*/}\/*//" \
+                       | sed -e '/^$/d' \
+                       | sort -u )
+
+      echo ""
+      echo ""
+      echo "$tset"
+      echo ""
+      echo ""
+      for l in $tset
+      do
+         mkdir -p $ACT_DIR_THREADS/${1%%.202309*}/$l
+      done
+
+      # restore active
+      for l in $(echo "$tset" | sed -e 's/\/act.20/\nact.20/g' | sort -u )
+      do
+         mkdir $ACT_DIR_ACTIVE/$l
+      done
+	done
+	${debug__act_archive_thread_completed:+set +x}
 }
 
 ########################################
@@ -380,6 +438,7 @@ function __act_archive_thread
 ########################################
 function __act_archive_activity
 {
+	  ${debug__act_archive_activity:+set -x}
       typeset a=""
       typeset d=""
       while [ $# -gt 0 ]
@@ -396,6 +455,7 @@ function __act_archive_activity
          done
          shift 
       done
+	  ${debug__act_archive_activity:+set +x}
 }
 
 ########################################
@@ -771,6 +831,9 @@ function __act_help
     echo ".asb s1 s2 ..            - start activity from backlog"
     echo ".as2 s1 s2 ..            - switch to new activity"
     echo ".arm s1 s2 ..            - rm/delete activity from system "
+    echo "------------ # navigation ------------------------------------------------------------"
+    echo ".au [num]                - active action upside from current action (within thread)"
+    echo ".ad [num]                - active action downside from current action (within thread)"
     echo "------------ # info files ------------------------------------------------------------"
     echo ".ani s1 s2               - new action info file for action "
     echo ".ali                     - list info files for actions created with .ani"
@@ -783,9 +846,10 @@ function __act_help
     echo ".aqt                     - query threads simple view"
     echo ".aqti                    - query threads status info "
     echo "------------ # archiving ------------------------------------------------------------"
-    echo ".aat [thr]               - archive thread see .aqt or .alt "
-    echo ".aaa \"time stamp\"        - archive activity use ts from .ala "
-    echo ".aab \"time stamp\"        - archive activity use ts from .alb "
+    echo ".aat  [thr]              - archive thread see .aqt or .alt "
+    echo ".aatc [thr]              - archive thread - clean up competed tasks only"
+    echo ".aaa \"time stamp\"      - archive activity use ts from .ala "
+    echo ".aab \"time stamp\"      - archive activity use ts from .alb "
     echo "------------ # misc -----------------------------------------------------------------"
     echo ".ah                      - this help"
     echo "ACT_DEBUG=ON             - enables additional output"
@@ -905,6 +969,35 @@ function __act_info_4_action
     fi
 }
 
+function __hlp_chk_num
+{
+    test "$*" -eq 1 2>/dev/null
+    if [ $? -lt 2 ] 
+    then
+        return 0
+    else 
+        return 1
+    fi
+}
+########################################
+# navigate current active action
+########################################
+function __act_down
+{
+    typeset npos=${*:-1} 
+    __hlp_chk_num $npos || echo "not a valid number $npos "
+}
+
+########################################
+# navigate current active action
+########################################
+function __act_up
+{
+:
+}
+
+
+
 
 alias .ainit=__act_init
 alias .ah=__act_help
@@ -923,9 +1016,12 @@ alias .alta=__act_list_thread_all
 alias .as2=__act_switch_to
 alias .asb=__act_start_backlog
 alias .aat=__act_archive_thread
+alias .aatc=__act_archive_thread_completed
 alias .aaa=__act_archive_activity
 alias .aab=__act_archive_backlog
 alias .af=__act_finished
+alias .au=__act_up
+alias .ad=__act_down
 # query actions
 alias .aqt=__act_query_threads
 alias .aqti="(ACT_OPT_STATS_THR=ON __act_query_threads )"
@@ -935,10 +1031,9 @@ alias .aqm=__act_query_meta
 ##########################################
 # TDB:
 ##########################################
-# +++++ add meta data
-# +++++ create statistics
-# +++++ activate backlog
-# ----- cumulative ts
+# ----- add meta data
+# ----- create statistics
+# ----- activate backlog
 
 
 
