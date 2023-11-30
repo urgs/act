@@ -13,9 +13,10 @@ ACT_DIR_ARC_THREADS=${ACT_DIR_ARCHIVE}/${ACT_DIR_THREADS##*/}
 
 ACT_A_CURR="${ACT_DIR_HOME}/current"
 ACT_A_CURF="$(readlink $ACT_A_CURR)"
+ACT_A_STAT=""
 
 ACT_FMT_TS="%Y-%m-%d_%H:%M:%S"
-ACT_FMT_DELIM=§
+#ACT_FMT_DELIM=$
 
 ACT_STR_INFO=inf.
 ACT_STR_INFO_EXT=.txt
@@ -569,7 +570,7 @@ function __act_switch_to
     if [ -z "$found" ]
     then
         echo "W----: nothing found for:  find $ACT_DIR_THREADS -type d -name \"*${new_act}*}\" "
-        return 
+        return 2 
     fi
 
     typeset cnt=$(echo "$found" | wc -l )
@@ -823,36 +824,37 @@ function __act_help
 {
     echo ""
     echo "------------ # activity --------------------------------------------------------------"
-    echo ".an  s1 s2 ..            - new activity for backlog - continue working on old task"
-    echo ".ai  s1 s2 ..            - new activity interrupt current activity "
-    echo ".af  [s1 s2 .. ]         - activity finished - wthout param use current activity"
-    echo ".ala                     - list active activities in threads see also .aqt and .aqti "
-    echo ".alb                     - list backlog activities "
-    echo ".asb s1 s2 ..            - start activity from backlog"
-    echo ".as2 s1 s2 ..            - switch to new activity"
-    echo ".arm s1 s2 ..            - rm/delete activity from system "
+    echo ".an  s1 s2 ..              - new activity for backlog - continue working on old task"
+    echo ".ai  s1 s2 ..              - new activity interrupt current activity "
+    echo ".aib s1 s2 .. @@ s3 s4 ..  - new activity interrupt below activity described by s1 s2 ... "
+    echo ".af  [s1 s2 .. ]           - activity finished - wthout param use current activity"
+    echo ".ala                       - list active activities in threads see also .aqt and .aqti "
+    echo ".alb                       - list backlog activities "
+    echo ".asb s1 s2 ..              - start activity from backlog"
+    echo ".as2 s1 s2 ..              - switch to new activity"
+    echo ".arm s1 s2 ..              - rm/delete activity from system "
     echo "------------ # navigation ------------------------------------------------------------"
-    echo ".au [num]                - active action upside from current action (within thread)"
-    echo ".ad [num]                - active action downside from current action (within thread)"
+    echo ".au [num]                  - active action upside from current action (within thread)"
+    echo ".ad [num]                  - active action downside from current action (within thread)"
     echo "------------ # info files ------------------------------------------------------------"
-    echo ".ani s1 s2               - new action info file for action "
-    echo ".ali                     - list info files for actions created with .ani"
-    echo ".alif                    - list info files for actions created with .ani full path"
+    echo ".ani s1 s2                 - new action info file for action "
+    echo ".ali                       - list info files for actions created with .ani"
+    echo ".alif                      - list info files for actions created with .ani full path"
     echo "------------ # threads --------------------------------------------------------------"
-    echo ".ant  [name]             - new thread - new chain "
-    echo ".alt  [thr]              - list threads not finished activities"
-    echo ".alta [thr]              - list threads all entries "
+    echo ".ant  [name]               - new thread - new chain "
+    echo ".alt  [thr]                - list threads not finished activities"
+    echo ".alta [thr]                - list threads all entries "
     echo "------------ # query   --------------------------------------------------------------"
-    echo ".aqt                     - query threads simple view"
-    echo ".aqti                    - query threads status info "
+    echo ".aqt                       - query threads simple view"
+    echo ".aqti                      - query threads status info "
     echo "------------ # archiving ------------------------------------------------------------"
-    echo ".aat  [thr]              - archive thread see .aqt or .alt "
-    echo ".aatc [thr]              - archive thread - clean up competed tasks only"
-    echo ".aaa \"time stamp\"      - archive activity use ts from .ala "
-    echo ".aab \"time stamp\"      - archive activity use ts from .alb "
+    echo ".aat  [thr]                - archive thread see .aqt or .alt "
+    echo ".aatc [thr]                - archive thread - clean up competed tasks only"
+    echo ".aaa \"time stamp\"        - archive activity use ts from .ala "
+    echo ".aab \"time stamp\"        - archive activity use ts from .alb "
     echo "------------ # misc -----------------------------------------------------------------"
-    echo ".ah                      - this help"
-    echo "ACT_DEBUG=ON             - enables additional output"
+    echo ".ah                        - this help"
+    echo "ACT_DEBUG=ON               - enables additional output"
     echo ""
 }
 
@@ -997,11 +999,115 @@ function __act_up
 }
 
 
+###################################################
+# add an action somwhere below a action or thread 
+###################################################
+function __act_save_status
+{
+	# save current pos
+	# .as2 __act_switch_to
+	# restore old pos
+
+	${debug__act_save_status:+set -x}
+
+	if [ -z "$*" ]
+	then
+		# stored globaly
+		ACT_A_STAT=$ACT_A_CURF		
+		${ACT_DEBUG:+ echo "### __act_save_status: ACT_A_STAT : \"$ACT_A_STAT\""}
+	else
+		# stored locally  in a typeset 
+		# variable inside the funktion
+		export $1=$ACT_A_CURF
+		typeset -n p=$1
+		${ACT_DEBUG:+ echo "### __act_save_status: $1 : \"$p\""}
+	fi
+
+	${debug__act_save_status:+set +x}
+}
+
+
+###################################################
+# add an action somwhere below a action or thread 
+###################################################
+function __act_restore_status
+{
+	# save current pos
+	# .as2 __act_switch_to
+	# restore old pos
+
+	${debug__act_restore_status:+set -x}
+	typeset __last_status
+	if [ -z "$*" ]
+	then
+		_last_status=$ACT_A_STAT
+	else
+		typeset -n  p=$1
+		_last_status=$p
+		unset $1
+	fi
+
+	${ACT_DEBUG:+ echo "### __act_restore_status: old : \"$_last_status\""}
+	__act_new_current $_last_status
+	${ACT_DEBUG:+ echo "### __act_restore_status: new : \"$ACT_A_CURF\""}
+
+	${debug__act_restore_status:+set +x}
+}
+
+
+
+
+###################################################
+# add an action somwhere below a action or thread 
+###################################################
+function __act_add_action_below
+{
+	# save current pos
+	# .as2 __act_switch_to
+	# restore old pos
+
+	${debug__act_add_action_below:+set -x}
+
+	# action parent , new , current
+	typeset ap=$( echo "$@" | sed -e 's/@@.*//')
+	typeset an=$( echo "$@" | sed -e 's/.*@@//')
+	typeset ac=$ACT_A_CURF
+
+	${ACT_DEBUG:+ echo "### __act_add_action_below: ap : \"$ap\""}
+	${ACT_DEBUG:+ echo "### __act_add_action_below: an : \"$an\""}
+	${ACT_DEBUG:+ echo "### __act_add_action_below: ac : \"$ac\""}
+
+	# save status
+	__act_save_status
+
+	# check ap
+	__act_switch_to $ap 
+	if [ $? -ne 0 ]
+	then 
+		echo "ERROR: can't continue (__act_add_action_below )"
+		return 2
+	else
+		# restore 
+   	# __act_init_current $ac
+		:
+	fi
+
+	# add the new action
+	__act_interrupt $an
+
+	# restore status
+	__act_restore_status
+
+   ${debug__act_add_action_below:+set +x}
+}
+
+
 
 
 alias .ainit=__act_init
 alias .ah=__act_help
 alias .ai=__act_interrupt
+alias .aib=__act_add_action_below
 alias .an=__act_4_backlog
 alias .arm=__act_rm
 alias .ani=__act_info_4_action
