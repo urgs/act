@@ -291,6 +291,31 @@ function __act_list_thread_all
 }
 
 ########################################
+# list tgreads only with name
+########################################
+function __act_list_thread_short
+{
+    # ACT_DISPLAY_FLT_SHORT=ON __act_list_thread $@
+
+	 # list threads
+	 typeset tl="$(cd ${ACT_DIR_THREADS} && ls -1d thr-*)"
+
+	 echo "#############################################"
+	 echo "# Open Done     Name"
+	 echo "#############################################"
+	 for t in $tl
+	 do
+	 	typeset dl="$(cd ${ACT_DIR_THREADS}/$t && find . -type d | sed -e 's/.*\///' )"
+	 	act_A=$(echo "$dl" | grep "^Act" | wc -l)
+	 	act_a=$(echo "$dl" | grep "^act" | wc -l)
+	 	printf "%4d   %3d    %s\n" $act_a $act_A $t
+	   # echo "$dl"
+	 done
+
+
+}
+
+########################################
 # list tree for thread
 ########################################
 function __act_list_thread
@@ -843,6 +868,7 @@ function __act_help
     echo "------------ # threads --------------------------------------------------------------"
     echo ".ant  [name]               - new thread - new chain "
     echo ".alt  [thr]                - list threads not finished activities"
+    echo ".alts                      - list threads by name"
     echo ".alta [thr]                - list threads all entries "
     echo "------------ # query   --------------------------------------------------------------"
     echo ".aqt                       - query threads simple view"
@@ -1119,6 +1145,7 @@ alias .alif="__act_list_info_files file"
 alias .ala=__act_list_active
 alias .alt=__act_list_thread 
 alias .alta=__act_list_thread_all 
+alias .alts=__act_list_thread_short 
 alias .as2=__act_switch_to
 alias .asb=__act_start_backlog
 alias .aat=__act_archive_thread
