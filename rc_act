@@ -287,7 +287,7 @@ function display_filter_item
 ########################################
 function __act_list_thread_all
 {
-    ACT_DISPLAY_FLT_ALL=ON __act_list_thread $@
+    ACT_DISPLAY_FLT_ALL=ON __act_list_thread_init $@
 }
 
 ########################################
@@ -313,6 +313,46 @@ function __act_list_thread_short
 	 done
 
 
+}
+########################################
+# list tree for thread init
+########################################
+function __act_list_thread_init
+{
+	typeset e=""
+	if [ $# -eq 0 ]
+	then
+		# contiue default 
+		__act_list_thread
+	else
+		# generate list
+		typeset s_str
+
+		for e in $*
+		do
+			s_str="${s_str:+${s_str} }-e $e" 
+		done
+
+		# echo s_str="#:$s_str :#"
+
+		# now collet entries below ${ACT_DIR_THREADS}
+		typeset dirlist=$( cd ${ACT_DIR_THREADS} && find . -maxdepth 1 -type d -name "thr-*" | grep $s_str )
+		# echo dirlist="#:$dirlist :#"
+
+		if [ -z "$dirlist" ]
+		then
+			# default display all
+			__act_list_thread
+		else
+			for e in $dirlist
+			do
+				e=${e#./}
+				# iterate over parameter specified
+        	   echo $e | sed -e 's/^\([ ]*thr-.*\)/'"$(echo -e "\e[33m\\1\e[0m")"'/'
+				__act_list_thread $e " "
+			done
+		fi
+	fi
 }
 
 ########################################
@@ -1143,7 +1183,7 @@ alias .alc=__act_list_current
 alias .ali=__act_list_info_files
 alias .alif="__act_list_info_files file"
 alias .ala=__act_list_active
-alias .alt=__act_list_thread 
+alias .alt=__act_list_thread_init 
 alias .alta=__act_list_thread_all 
 alias .alts=__act_list_thread_short 
 alias .as2=__act_switch_to
