@@ -1,13 +1,11 @@
 # act
-shell command line activity tracker by threads
+shell command line activity tracker by threads (simple activity manager )
 
 simple file based structure with aliases se rc_act 
 try the HOWTO at the end of this file - just for fun - 
 
------------- # activity --------------------------------------------------------------
+------------ # help ------------------------------------------------------------------
 .ah
------------- # activity --------------------------------------------------------------
-
 ------------ # activity --------------------------------------------------------------
 .an  s1 s2 ..              - new activity for backlog - continue working on old task
 .ai  s1 s2 ..              - new activity interrupt current activity 
@@ -24,9 +22,9 @@ try the HOWTO at the end of this file - just for fun -
 .alif                      - list info files for actions created with .ani full path
 ------------ # threads --------------------------------------------------------------
 .ant  [name]               - new thread - new chain 
-.alt  [thr]                - list threads not finished activities
+.alt  [thr] | [s1 s1 ..]   - list threads not finished activities e.g. .alt csb bgb   
 .alts                      - list threads by name
-.alta [thr]                - list threads all entries 
+.alta [thr] | [s1 s1 ..]   - list threads all entries .alta csb bgb 
 ------------ # query   --------------------------------------------------------------
 .aqt                       - query threads simple view
 .aqti                      - query threads status info 
@@ -105,7 +103,7 @@ G.) you can remove/archive a complete thread, it makes sense to switch to anothe
 ...... play arround, try other things ....
 ...... rm -rf ~/act    # delete all traces
 ...... repeat (B)
-...... have fun 
+...... have fun  :-) 
 
 
 

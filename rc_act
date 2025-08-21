@@ -907,9 +907,9 @@ function __act_help
     echo ".alif                      - list info files for actions created with .ani full path"
     echo "------------ # threads --------------------------------------------------------------"
     echo ".ant  [name]               - new thread - new chain "
-    echo ".alt  [thr]                - list threads not finished activities"
+    echo ".alt  [thr] | [s1 s1 ..]   - list threads not finished activities e.g. .alt csb bgb"
     echo ".alts                      - list threads by name"
-    echo ".alta [thr]                - list threads all entries "
+    echo ".alta [thr] | [s1 s1 ..]   - list threads all entries .alta csb bgb"
     echo "------------ # query   --------------------------------------------------------------"
     echo ".aqt                       - query threads simple view"
     echo ".aqti                      - query threads status info "
@@ -951,7 +951,7 @@ function __act_query_threads
     then
         echo ""
         echo "########################################################################"
-        echo "# S-TSK  TBD   DONE  Thread-Name "
+        echo "# S-TSK  TBD  DONE    %   Thread-Name "
         echo "########################################################################"
         typeset s_ts=0
         typeset s_tp=0
@@ -963,13 +963,16 @@ function __act_query_threads
            typeset tp="$(echo "$subt" | grep "^act\." | wc -l )"       # pending tbd
            typeset td="$(echo "$subt" | grep "^Act\." | wc -l )"       # done
 
-           printf "%6d%5d%5d    %s\n" "$ts" "$tp" "$td" "$t"
+			  typeset perc="$( echo "scale=2; (${td}*100)/${ts}" | bc | sed -e 's/\..*//')"
+           printf "%6d%5d %5d %5d     %s\n" "$ts" "$tp" "$td" "$perc" "$t"
            s_ts=$(( $s_ts + $ts ))
            s_tp=$(( $s_tp + $tp ))
            s_td=$(( $s_td + $td ))
+
         done
         echo "------------------------------------------------------------------------"
-        printf "%6d%5d%5d    %s\n\n" "$s_ts" "$s_tp" "$s_td" "TOTAL"
+			  typeset perc="$( echo "scale=2; (${s_td}*100)/${s_ts}" | bc | sed -e 's/\..*//')"
+        printf "%6d%5d %5d %5d     %s\n\n" "$s_ts" "$s_tp" "$s_td" "$perc" "TOTAL "
     else 
         echo "$threads"
     fi
